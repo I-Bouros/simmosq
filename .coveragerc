@@ -1,0 +1,8 @@
+[run]
+source = simmosq
+omit = 
+    simmosq/tests/*
+    simmosq/data/*
+
+[report]
+show_missing = True
