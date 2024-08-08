@@ -7,7 +7,9 @@
 # notice and full license details.
 #
 
-from simmosq import Mosquito
+from simmosq import Mosquitoes
+import scipy.stats
+import copy
 
 
 class ForwardModelMosqMov(object):
@@ -16,7 +18,7 @@ class ForwardModelMosqMov(object):
     def __init__(self):
         super(ForwardModelMosqMov, self).__init__()
 
-    def simulate_step(self, state, simulation_domain, parameters):
+    def simulate_step(self, mosquitoes, parameters):
         """
         Runs a forward simulation with the given ``parameters`` and returns a
         time-series with data points corresponding to the given ``times``.
@@ -38,18 +40,26 @@ class ForwardModelMosqMov(object):
         """
         raise NotImplementedError
 
+
 class RandomDiffussion(ForwardModelMosqMov):
     """
     """
     def __init__(self):
-        pass
+        super(ForwardModelMosqMov, self).__init__()
 
-    def simulate_step(self, state, simulation_domain, parameters):
+    def simulate_step(self, mosquitoes, parameters):
         """
         """
-        step_size = parameters['step_size']
+        covariance = parameters['covariance_matrix']
 
-        for i in range(n_mosquitoes):
-            state = random.normal()
+        positions = mosquitoes._positions
 
-        return
+        # Propose new positions for the mosquitoes
+        new_positions = copy.deepcopy(positions)
+
+        for _ in range(mosquitoes._n_mosquitoes):
+            if not mosquitoes._trapped[_] or not mosquitoes._dead[_]:
+                new_positions[_] = scipy.stats.multivariate_normal.rvs(
+                    positions[_], covariance).tolist()
+
+        return new_positions

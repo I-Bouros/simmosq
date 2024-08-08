@@ -8,8 +8,9 @@
 #
 
 import numpy as np
+import copy
 
-from simmosq import ForwardModelMosqMov, ForwardModelTrap
+from simmosq import Mosquitoes, ForwardModelMosqMov, ForwardModelTrap, SimulationDomain
 
 
 class SimulationController:
@@ -34,51 +35,31 @@ class SimulationController:
 
     """
 
-    def __init__(self, model_mosq_movement, model_trapping, simulation_domain):
+    def __init__(self, mosquitoes, model_mosq_movement, model_trapping=None, simulation_domain=None):
+        if not isinstance(mosquitoes, Mosquitoes):
+            raise TypeError(
+                'The mosquito population needs to be of type simmosq.Mosquitoes.')
+
         if not isinstance(model_mosq_movement, ForwardModelMosqMov):
             raise TypeError(
-                'Model for mosquito movement needs to be a subclass of the simmosq.ForwardModelMosqMov')
-        if not isinstance(model_trapping, ForwardModelTrap):
-            raise TypeError(
-                'Model for trapping needs to be a subclass of the simmosq.ForwardModelTrap')
-        if not isinstance(simulation_domain, SimulationDomain):
-            raise TypeError(
-                'Simulation domain needs to be a subclass of the simmosq.SimulationDomain')
-
+                'Model for mosquito movement needs to be a subclass of the simmosq.ForwardModelMosqMov.')
+        
+        self._mosquitoes = mosquitoes
         self._model_mosq_movement = model_mosq_movement
-        self._model_trapping = model_trapping
-        self._simulation_domain = simulation_domain
 
-    def switch_resolution(self, step_size):
-        """
-        Change the number of points we wish to keep from our simulated sample
-        of incidences.
+        if model_trapping is not None:
+            if not isinstance(model_trapping, ForwardModelTrap):
+                raise TypeError(
+                    'Model for trapping needs to be a subclass of the simmosq.ForwardModelTrap.')
+            self._model_trapping = model_trapping
 
-        Parameters
-        ----------
-        num_points
-            (integer) number of points we wish to keep from our simulated
-            sample of incidences.
+        if simulation_domain is not None:
+            if not isinstance(simulation_domain, SimulationDomain):
+                raise TypeError(
+                    'Simulation domain needs to be of type simmosq.SimulationDomain.')
+            self._simulation_domain = simulation_domain
 
-        """
-        start_sim_time, end_sim_time = self._sim_end_points
-        self._regime = np.rint(np.linspace(
-            start_sim_time, end_sim_time, num=num_points)).astype(int)
-
-    def get_regime(self):
-        """
-        Gets all time point the simulation uses.
-        """
-        return self._regime
-
-    def get_time_bounds(self):
-        """
-        Gets time bounds of the simulation as a tuple with start and end time
-        of the simulation.
-        """
-        return self._sim_end_points
-
-    def run(self, parameters):
+    def run(self, parameters, end_time):
         """
         Operates the ``simulate`` method present in any subclass of the
         ``ForwardModel``.
@@ -89,4 +70,18 @@ class SimulationController:
             An ordered sequence of parameter values.
 
         """
-        return self.model.simulate(parameters, self._regime)
+        if not isinstance(end_time, int):
+            raise TypeError(
+                'Simulation time must be an integer.')
+
+        list_of_mosquitoes = [copy.deepcopy(self._mosquitoes)]
+
+        for _ in range(end_time):
+            new_positions = self._model_mosq_movement.simulate_step(
+                self._mosquitoes, parameters)
+
+            self._mosquitoes.update_positions(new_positions)
+
+            list_of_mosquitoes.append(copy.deepcopy(self._mosquitoes))
+
+        return list_of_mosquitoes

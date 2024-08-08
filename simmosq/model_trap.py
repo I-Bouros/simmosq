@@ -8,7 +8,7 @@
 #
 
 import numpy.random as random
-from simmosq import Mosquito
+from simmosq import Mosquitoes
 
 
 class ForwardModelTrap(object):

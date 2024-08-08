@@ -16,7 +16,7 @@ number of cases of infections by day during an outbreak of the influenza virus.
 from .version_info import VERSION_INT, VERSION  # noqa
 
 # Import main classes
-from .mosquito import Mosquito
+from .mosquitoes import Mosquitoes  # noqa
 
 from .model_movement import ForwardModelMosqMov, RandomDiffussion  # noqa
 from .model_trap import ForwardModelTrap, RadialTrap  # noqa
