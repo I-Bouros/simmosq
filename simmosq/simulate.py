@@ -11,7 +11,7 @@ import numpy as np
 import copy
 
 from simmosq import Mosquitoes, ForwardModelMosqMov, ForwardModelTrap, SimulationDomain
-
+ 
 
 class SimulationController:
     """SimulationController Class:
@@ -59,7 +59,7 @@ class SimulationController:
                     'Simulation domain needs to be of type simmosq.SimulationDomain.')
             self._simulation_domain = simulation_domain
 
-    def run(self, parameters, end_time):
+    def run(self, parameters, end_time, model_trapping=None):
         """
         Operates the ``simulate`` method present in any subclass of the
         ``ForwardModel``.
@@ -83,5 +83,9 @@ class SimulationController:
             self._mosquitoes.update_positions(new_positions)
 
             list_of_mosquitoes.append(copy.deepcopy(self._mosquitoes))
+
+            if model_trapping is not None:
+                for i in range(len(model_trapping)):
+                    model_trapping[i].attract_mosquitoes(self._mosquitoes)
 
         return list_of_mosquitoes

@@ -18,7 +18,7 @@ from .version_info import VERSION_INT, VERSION  # noqa
 # Import main classes
 from .mosquitoes import Mosquitoes  # noqa
 
-from .model_movement import ForwardModelMosqMov, RandomDiffussion  # noqa
+from .model_movement import ForwardModelMosqMov, RandomDiffusion  # noqa
 from .model_trap import ForwardModelTrap, RadialTrap  # noqa
 
 from .simulation_domain import SimulationDomain  # noqa
