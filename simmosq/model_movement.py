@@ -10,6 +10,7 @@
 from simmosq import Mosquitoes
 import scipy.stats
 import copy
+import numpy.random as random
 
 
 class ForwardModelMosqMov(object):
@@ -41,7 +42,7 @@ class ForwardModelMosqMov(object):
         raise NotImplementedError
 
 
-class RandomDiffussion(ForwardModelMosqMov):
+class RandomDiffusion(ForwardModelMosqMov):
     """
     """
     def __init__(self):
@@ -61,5 +62,10 @@ class RandomDiffussion(ForwardModelMosqMov):
             if not mosquitoes._trapped[_] or not mosquitoes._dead[_]:
                 new_positions[_] = scipy.stats.multivariate_normal.rvs(
                     positions[_], covariance).tolist()
+                
+                #Randomly drawing from uniform to see if each mosquito survives
+                u = random.uniform(0,1,1)
+                if u < parameters['death_prob']:
+                    mosquitoes.die(_)
 
         return new_positions
